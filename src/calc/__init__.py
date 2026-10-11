@@ -1,1 +1,1 @@
-from .core import add, sub, mul, div
+from .core import add, div, mul, sub
