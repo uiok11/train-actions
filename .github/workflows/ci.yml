@@ -1,0 +1,59 @@
+name: ci
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install ruff
+      - run: ruff check .
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+      - run: pytest --junitxml=report.xml --cov=. --cov-report=xml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            report.xml
+            coverage.xml
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install build
+      - run: python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  notify:
+    needs: [lint, test, build]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - run: echo "pipeline status: ${{ job.status }}"
