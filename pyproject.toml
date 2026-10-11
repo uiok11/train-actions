@@ -16,3 +16,6 @@ pythonpath = ["src"]
 
 [tool.ruff]
 line-length = 100
+
+[tool.ruff.lint]
+ignore = ["E302", "F401"]
