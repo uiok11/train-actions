@@ -56,4 +56,5 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - run: echo "pipeline status: ${{ job.status }}"
+      - name: show status
+        run: echo "status ${{ job.status }}"
